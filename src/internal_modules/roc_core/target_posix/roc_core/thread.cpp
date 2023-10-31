@@ -21,8 +21,42 @@
 #include "roc_core/panic.h"
 #include "roc_core/thread.h"
 
+size_t NAME_LEN = 20;
+char* prepend = "roc_";
+
 namespace roc {
 namespace core {
+
+bool Thread::set_name(char* new_name){
+    int rc;
+
+    char * bfr = prepend + *new_name;
+
+    if (strlen(bfr) > NAME_LEN){
+        roc_log(LogError, "thread: new name is too long, name length must be under %d characters", (NAME_LEN - strlen(prepend)));
+        return false;
+    }
+
+    rc = pthread_getname_np(thread_, bfr, NAME_LEN);
+
+    if (rc != 0){
+        roc_log(LogError, "thread: unable to set new name: %d", bfr);
+        return false;
+    }
+
+    return true;
+
+}
+
+const char* Thread::get_name(){
+    int rc;
+
+    char * full_name;
+
+    rc = pthread_getname_np(thread_, full_name, NAME_LEN);
+
+    return full_name;
+}
 
 uint64_t Thread::get_pid() {
     return (uint64_t)getpid();
