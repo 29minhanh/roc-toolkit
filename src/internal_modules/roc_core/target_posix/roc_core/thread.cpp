@@ -22,7 +22,7 @@
 #include "roc_core/panic.h"
 #include "roc_core/thread.h"
 
-uint64_t NAME_LEN = 20;
+uint64_t NAME_LEN = 32;
 const char* prepend = "roc_";
 
 namespace roc {
