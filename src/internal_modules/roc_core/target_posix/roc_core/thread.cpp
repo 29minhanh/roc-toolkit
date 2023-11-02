@@ -15,47 +15,56 @@
 #endif
 
 #include <unistd.h>
+#include "roc_core/string_builder.h"
 
 #include "roc_core/errno_to_str.h"
 #include "roc_core/log.h"
 #include "roc_core/panic.h"
 #include "roc_core/thread.h"
 
-size_t NAME_LEN = 20;
-char* prepend = "roc_";
+uint64_t NAME_LEN = 20;
+const char* prepend = "roc_";
 
 namespace roc {
 namespace core {
 
-bool Thread::set_name(char* new_name){
-    int rc;
-
-    char * bfr = prepend + *new_name;
+bool Thread::set_name(const char* new_name){
+    char* bfr = strdup("");
+    StringBuilder b(bfr, NAME_LEN);
+    b.append_str(prepend);
+    b.append_str(new_name);
 
     if (strlen(bfr) > NAME_LEN){
-        roc_log(LogError, "thread: new name is too long, name length must be under %d characters", (NAME_LEN - strlen(prepend)));
+        roc_log(LogError, "thread: new name is too long, name length must be under %ld characters", (NAME_LEN - strlen(prepend)));
         return false;
     }
 
-    rc = pthread_getname_np(thread_, bfr, NAME_LEN);
+    int rc = pthread_getname_np(thread_, bfr, NAME_LEN);
 
     if (rc != 0){
-        roc_log(LogError, "thread: unable to set new name: %d", bfr);
+        roc_log(LogError, "thread: unable to set new name: %s", bfr);
+        free(bfr);
         return false;
     }
 
+    free(bfr);
     return true;
 
 }
 
-const char* Thread::get_name(){
+char* Thread::get_name(){
     int rc;
 
-    char * full_name;
+    char* bfr = strdup("");
 
-    rc = pthread_getname_np(thread_, full_name, NAME_LEN);
+    rc = pthread_getname_np(thread_, bfr, NAME_LEN);
 
-    return full_name;
+    if (rc != 0){
+        roc_log(LogError, "thread: name could not be obtained");
+    }
+
+    return bfr;
+
 }
 
 uint64_t Thread::get_pid() {

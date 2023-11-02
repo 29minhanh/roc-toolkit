@@ -26,10 +26,10 @@ namespace core {
 class Thread : public NonCopyable<Thread> {
 public:
     //! Get thread name
-    const char* get_name();
+    char* get_name();
 
     //! Set thread name
-    bool set_name(char* new_name);
+    bool set_name(const char* new_name);
 
     //! Get numeric identifier of current process.
     static uint64_t get_pid();
