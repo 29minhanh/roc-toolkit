@@ -16,7 +16,6 @@
 
 #include <unistd.h>
 #include "roc_core/string_builder.h"
-// #include <string.h>
 #include "roc_core/errno_to_str.h"
 #include "roc_core/log.h"
 #include "roc_core/panic.h"
