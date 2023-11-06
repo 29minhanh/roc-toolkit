@@ -1,10 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include "roc_core/thread.h"
-#include <err.h>
-#include <errno.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <unistd.h> // for sleep and strcmp
 
 uint64_t NAMELEN = 32;
 
@@ -20,7 +17,6 @@ class someThread : public Thread{
     }
 
     ~someThread(){
-
     }
 
     private:
@@ -37,33 +33,52 @@ TEST (threads, FAIL){
 }
 
 TEST(threads, get_thread_default_name){
-someThread st;
+    someThread st;
 
-char *expected = strdup("roc-test-core");
-char *actual = strdup("");
+    char *expected = strdup("roc-test-core");
+    char *actual = strdup("");
 
-st.get_name(actual);
+    st.get_name(actual);
 
-CHECK(strcmp(expected, actual) == 0);
+    CHECK(strcmp(expected, actual) == 0);
 
-st.join();
+    st.join();
 }
 
 
 TEST(threads, set_thread){
-someThread st;
+    someThread st;
 
-char *expected = strdup("roc-foo");
-char *actual = strdup("");
+    char *expected = strdup("roc-foo");
+    char *actual = strdup("");
 
-st.set_name(expected);
-st.get_name(actual);
+    st.set_name(expected);
+    st.get_name(actual);
 
-CHECK(strcmp(expected, actual) == 0);
+    CHECK(strcmp(expected, actual) == 0);
 
-st.join();
+    st.join();
 }
 
+
+TEST(threads, renames){
+    someThread st;
+
+    char *expected = strdup("last_name");
+    char *first = strdup("firstname");
+    char *second = strdup("secondrename");
+
+    st.set_name(first);
+    st.set_name(second);
+    st.set_name(expected);
+
+    char *actual = strdup("");
+    st.get_name(actual);
+
+    CHECK(strcmp(expected, actual) == 0);
+
+    st.join();
+}
 
 } // namespace core
 } // namespace roc

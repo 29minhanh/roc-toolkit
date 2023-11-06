@@ -15,13 +15,13 @@
 #endif
 
 #include <unistd.h>
-#include "roc_core/string_builder.h"
 #include "roc_core/errno_to_str.h"
 #include "roc_core/log.h"
 #include "roc_core/panic.h"
 #include "roc_core/thread.h"
+
 uint64_t NAME_LEN = 32;
-const char* prepend = "roc_";
+const char* prepend = "roc-";
 
 namespace roc {
 namespace core {
