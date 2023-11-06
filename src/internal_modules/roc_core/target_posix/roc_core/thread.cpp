@@ -19,6 +19,7 @@
 #include "roc_core/log.h"
 #include "roc_core/panic.h"
 #include "roc_core/thread.h"
+#include "roc_core/macro_helpers.h"
 
 uint64_t NAME_LEN = 32;
 const char* prepend = "roc-";
@@ -28,31 +29,60 @@ namespace core {
 
 bool Thread::set_name(char* new_name){
 
-    char* bfr = strdup(new_name);
-    int rc = pthread_setname_np(thread_, bfr);
+
+int rc; 
+
+
+
+#if defined(__FreeBSD__)
+pthread_set_name_np(get_tid(), new_name);
+// No direct way of actually checking this works or not because FreeBSD and OpenBSD doesn't have get_name equivalent...
+return true;
+
+#elif defined(__OpenBSD__)
+pthread_set_name_np(get_tid(), new_name);
+// No direct way of actually checking this works or not because FreeBSD and OpenBSD doesn't have get_name equivalent...
+return true;
+
+#elif defined(__NetBSD__)
+rc = pthread_setname_np(thread_, new_name, nullptr);
+
+if (rc != 0){
+    roc_log(LogError, "thread: unable to set new name: %s", new_name);
+    return false;
+}
+else{
+    return true;
+}
+
+#else
+rc = pthread_setname_np(thread_, new_name);
 
     if (rc != 0){
-        roc_log(LogError, "thread: unable to set new name: %s", bfr);
-        free(bfr);
+        roc_log(LogError, "thread: unable to set new name: %s", new_name);
         return false;
     }
     else{
 
-        char *actual = strdup("");
+        // char *actual = strdup("");
 
-        pthread_getname_np(thread_, actual, NAME_LEN);
-        if (actual != bfr){
-            roc_log(LogError, "thread: tried to set name as '%s' but instead was actually '%s'?", bfr, actual);
-            return false;
-        }
+        // pthread_getname_np(thread_, actual, NAME_LEN);
+        // if (actual != bfr){
+        //     roc_log(LogError, "thread: tried to set name as '%s' but instead was actually '%s'?", bfr, actual);
+        //     return false;
+        // }
 
-        free(bfr);
         return true;
     }
+#endif
+
+    // char* bfr = strdup(new_name);
+    // int rc = pthread_setname_np(thread_, bfr);
 
 }
 
 void Thread::get_name(char * buffer){
+
 
     int rc;
 
