@@ -32,7 +32,8 @@ bool Thread::set_name(char* new_name){
 
 int rc; 
 
-// edited my email.. . hoepe this works
+// edited my email.. . hoepe this 
+// 
 
 
 #if defined(__FreeBSD__)
